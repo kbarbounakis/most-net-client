@@ -34,7 +34,7 @@ namespace Most.Client {
 		/// Prepares an authenticated request by adding a cookie value which is going to be used as HTTP request header.
 		/// </summary>
 		/// <param name="cookie">A string which represents the HTTP Cookie header</param>
-		public ClientDataService Authenticate(string cookie) {
+		public ClientDataService authenticate(string cookie) {
 			this.cookie = cookie;
 			return this;
 		}
@@ -43,7 +43,7 @@ namespace Most.Client {
 		/// </summary>
 		/// <param name="username">A string which represents the user name.</param>
 		/// <param name="password">A string which represents the user password.</param>
-		public ClientDataService Authenticate(string username, string password) {
+		public ClientDataService authenticate(string username, string password) {
 			try {
 				//create request uri
 				Uri requestUri;
@@ -82,13 +82,17 @@ namespace Most.Client {
 		/// </summary>
 		/// <returns>An object which represents the response of the executed HTTP request.</returns>
 		/// <param name="relativeUri">A string which represents a relative URI.</param>
-		public Object DoGet(string relativeUri) {
+		/// <param name="query">A collection of query parameters.</param>
+		public Object get(string relativeUri, IDictionary<string,Object> query) {
 			//create request uri
 			Uri requestUri;
 			Object result;
 			Uri.TryCreate( new Uri(this.uri), relativeUri, out requestUri);
 			if (requestUri == null) {
 				throw new InvalidCastException("The given relative URI is not well formed.");
+			}
+			if ((query != null) && (query.Count>0)) {
+				//todo::add query
 			}
 			//string s = string.Join("&", data.Select((x) => x.Key + "=" + x.Value));
 			//init request
@@ -124,8 +128,12 @@ namespace Most.Client {
 			return result;
 		}
 
-		public Object DoPost(string relativeUri) {
+		public Object post(string relativeUri) {
 			return null;
+		}
+
+		public ClientDataQueryable model(string model) {
+			return new ClientDataQueryable (model);
 		}
 
 	}

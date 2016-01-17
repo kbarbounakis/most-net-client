@@ -42,6 +42,7 @@
     <Compile Include="ClientDataService.cs" />
     <Compile Include="DataObject.cs" />
     <Compile Include="DataObjectArray.cs" />
+    <Compile Include="ClientDataQueryable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
