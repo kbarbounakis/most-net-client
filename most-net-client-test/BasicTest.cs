@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.Configuration;
 
 namespace Most.Client.Test
 {
@@ -11,20 +12,28 @@ namespace Most.Client.Test
 		[Test ()]
 		public void TestCase ()
 		{
-			Most.Client.ClientDataService svc = new ClientDataService ("http://mw-admin-kbarbounakis.c9users.io/");
-			Object result = svc.authenticate("alexis.rees@example.com","user").get("/Group/index.json", new Dictionary<String,Object>());
-			Console.WriteLine (result.GetType ().ToString ());
+
+			var result = Most.Client.ClientDataContext
+				.Create (ConfigurationManager.AppSettings["Server"])
+				.Authenticate (ConfigurationManager.AppSettings["Username"], ConfigurationManager.AppSettings["Password"])
+				.Model("Group").Schema();
+			Console.WriteLine (result.ToString ());
+			
 		}
 
 		[Test ()]
-		public void TestValueSerialization ()
+		public void TestGetProducts ()
 		{
-			JsonSerializerSettings settings = new JsonSerializerSettings ();
-			Console.WriteLine (JsonConvert.SerializeObject (null));
-			Console.WriteLine (JsonConvert.SerializeObject (100));
-			Console.WriteLine (JsonConvert.SerializeObject ("Hello World!", Newtonsoft.Json.Formatting.None));
-			Console.WriteLine (JsonConvert.SerializeObject (DateTime.Now));
+
+			var result = Most.Client.ClientDataContext
+				.Create (ConfigurationManager.AppSettings ["Server"])
+				.Authenticate (ConfigurationManager.AppSettings ["Username"], ConfigurationManager.AppSettings ["Password"])
+				.Model ("Product").OrderBy ("name")
+				.GetItems ();
+			Console.WriteLine (result.ToString ());
+
 		}
+
 	}
 }
 

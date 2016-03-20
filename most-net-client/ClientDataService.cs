@@ -6,17 +6,21 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using System.IO;
+using System.Web;
+using System.Net.Http;
 
 namespace Most.Client {
-	
-	public class ClientDataService
+
+	public class ClientDataService:IClientDataService
 	{
 		private string uri;
 		private string cookie;
 
+
 		public ClientDataService (string uri)
 		{
-			//ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+			ServicePointManager.CheckCertificateRevocationList = false;
+			ServicePointManager.ServerCertificateValidationCallback = RemoteCertificateValidationCallback;
 
 			if (String.IsNullOrEmpty (uri)) {
 				throw new ArgumentNullException ("uri", "Uri parameter cannot be null or empty.");
@@ -33,23 +37,24 @@ namespace Most.Client {
 		/// <summary>
 		/// Prepares an authenticated request by adding a cookie value which is going to be used as HTTP request header.
 		/// </summary>
-		/// <param name="cookie">A string which represents the HTTP Cookie header</param>
-		public ClientDataService authenticate(string cookie) {
-			this.cookie = cookie;
+		/// <param name="authCookie">A string which represents the HTTP Cookie header to be used for user authentication</param>
+		public IClientDataService Authenticate(string authCookie) {
+			this.cookie = authCookie;
 			return this;
 		}
+
 		/// <summary>
 		/// Prepares an authenticated request by passing remote user credentials.
 		/// </summary>
 		/// <param name="username">A string which represents the user name.</param>
 		/// <param name="password">A string which represents the user password.</param>
-		public ClientDataService authenticate(string username, string password) {
+		public IClientDataService Authenticate(string username, string password) {
 			try {
 				//create request uri
 				Uri requestUri;
 				Uri.TryCreate( new Uri(this.uri), "/User/index.json?$filter=id eq me()", out requestUri);
 				//init request
-				HttpWebRequest req = HttpWebRequest.CreateHttp(requestUri.AbsoluteUri);
+				HttpWebRequest req = (HttpWebRequest)WebRequest.Create(new Uri(requestUri.AbsoluteUri));
 				req.KeepAlive = true;
 				req.AllowAutoRedirect = true;
 				req.Method = "GET";
@@ -77,30 +82,50 @@ namespace Most.Client {
 				throw ex;
 			}
 		}
+
 		/// <summary>
-		/// Executes an HTTP GET request based on the given relative URI.
+		/// Executes an HTTP request based on the given relative URI.
 		/// </summary>
 		/// <returns>An object which represents the response of the executed HTTP request.</returns>
+		/// <param name="method">The HTTP method which is going to be executed.</param>
 		/// <param name="relativeUri">A string which represents a relative URI.</param>
 		/// <param name="query">A collection of query parameters.</param>
-		public Object get(string relativeUri, IDictionary<string,Object> query) {
+		/// <param name="data">An object which represents the data to be sent.</param>
+		public Object Execute(ServiceExecuteOptions options) {
 			//create request uri
 			Uri requestUri;
 			Object result;
-			Uri.TryCreate( new Uri(this.uri), relativeUri, out requestUri);
+			Uri.TryCreate( new Uri(this.uri), options.Url, out requestUri);
 			if (requestUri == null) {
 				throw new InvalidCastException("The given relative URI is not well formed.");
 			}
-			if ((query != null) && (query.Count>0)) {
-				//todo::add query
+			if ((options.Query != null) && (options.Query.Count>0)) {
+				//create Uri builder
+				UriBuilder builder = new UriBuilder(requestUri);
+				builder.Query = string.Join("&", options.Query.AllKeys.Select((x) =>  
+					HttpUtility.UrlEncode(x) + "=" + HttpUtility.UrlEncode(options.Query[x])));
+				requestUri = builder.Uri;
 			}
-			//string s = string.Join("&", data.Select((x) => x.Key + "=" + x.Value));
+			Newtonsoft.Json.JsonSerializer sr = new JsonSerializer ();
 			//init request
 			HttpWebRequest req = HttpWebRequest.CreateHttp(requestUri.AbsoluteUri);
 			req.KeepAlive = true;
 			req.AllowAutoRedirect = true;
-			req.Method = "GET";
+			req.Method = options.Method.Method;
+			req.Accept = "application/json";
 			req.ContentType = "application/json";
+			if ((options.Data != null) && (options.Method != HttpMethod.Get)) {
+				using (var writer = new StreamWriter(req.GetRequestStream()))
+				{
+					using (var textWriter = new JsonTextWriter(writer))
+					{
+						sr.Serialize (textWriter, options.Data);
+					}
+				}
+			}
+			if ((options.Headers != null) && (options.Headers.Count > 0)) {
+				req.Headers.Add (options.Headers);
+			}
 			//set authentication cookie
 			if (!String.IsNullOrEmpty (this.cookie)) {
 				req.Headers.Add("Cookie",this.cookie);
@@ -108,11 +133,12 @@ namespace Most.Client {
 			HttpWebResponse response = (HttpWebResponse)req.GetResponse();
 			//if response status code is 200
 			if (response.StatusCode == HttpStatusCode.OK) {
-				Newtonsoft.Json.JsonSerializer sr = new JsonSerializer ();
-				StreamReader reader = new StreamReader (response.GetResponseStream ());
-				using (var textReader = new JsonTextReader(reader))
+				using (var reader = new StreamReader (response.GetResponseStream ())) 
 				{
-					result = sr.Deserialize (textReader);
+					using (var textReader = new JsonTextReader(reader))
+					{
+						result = sr.Deserialize (textReader);
+					}
 				}
 				//close response
 				response.Close();
@@ -128,13 +154,6 @@ namespace Most.Client {
 			return result;
 		}
 
-		public Object post(string relativeUri) {
-			return null;
-		}
-
-		public ClientDataQueryable model(string model) {
-			return new ClientDataQueryable (model);
-		}
 
 	}
 
