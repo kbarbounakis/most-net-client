@@ -61,7 +61,7 @@ namespace Most.Client
 			NameValueCollection result = new NameValueCollection();
 			foreach (var prop in this.GetType().GetProperties()) {
 				if (prop.GetValue (this) != null) {
-					result.Add ("$" + prop.Name, ClientDataQueryable.Escape(prop.GetValue (this), true));
+					result.Add ("$" + prop.Name, ClientDataQueryable.escape(prop.GetValue (this), true));
 				}
 			}
 			return result;

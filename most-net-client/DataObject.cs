@@ -10,7 +10,7 @@ namespace Most.Client
 			//
 		}
 
-		public T GetValue<T>(string key) {
+		public T getValue<T>(string key) {
 			if (this.ContainsKey (key)) {
 				if (this [key] != null) {
 					TypeConverter converter = System.ComponentModel.TypeDescriptor.GetConverter (this [key]);
@@ -24,24 +24,28 @@ namespace Most.Client
 			return default(T);
 		}
 
-		public String GetString(string key) {
-			return this.GetValue<String> (key);
+		public Object getValue(string key) {
+			return this.getValue<Object> (key);
 		}
 
-		public Int32 GetInteger(string key) {
-			return this.GetValue<Int32> (key);
+		public String getString(string key) {
+			return this.getValue<String> (key);
 		}
 
-		public Single GetFloat(string key) {
-			return this.GetValue<Single> (key);
+		public Int32 getInteger(string key) {
+			return this.getValue<Int32> (key);
 		}
 
-		public Double GetDouble(string key) {
-			return this.GetValue<Double> (key);
+		public Single getFloat(string key) {
+			return this.getValue<Single> (key);
 		}
 
-		public DateTime GetDateTime(string key) {
-			return this.GetValue<DateTime> (key);
+		public Double getDouble(string key) {
+			return this.getValue<Double> (key);
+		}
+
+		public DateTime getDateTime(string key) {
+			return this.getValue<DateTime> (key);
 		}
 
 	}

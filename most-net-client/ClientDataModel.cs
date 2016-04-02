@@ -19,72 +19,82 @@ namespace Most.Client
 			return this.name;
 		}
 
-		public IClientDataService GetService() {
+		public IClientDataService getService() {
 			return this.service;
 		}
 
-		public object Schema() {
+		public object schema() {
 			var options = new ServiceExecuteOptions();
 			options.Url = String.Format ("/{0}/schema.json", this.GetName ());
-			return this.GetService().Execute(options);
+			return this.getService().execute(options);
 		}
 
-		public ClientDataQueryable Where(string name) {
+		public ClientDataQueryable where(string name) {
 			var result = new ClientDataQueryable(this.name, this.service);
-			return result.Where (name);
+			return result.where (name);
 		}
 
-		public ClientDataQueryable Select(params string[] args) {
+		public ClientDataQueryable select(params string[] args) {
 			var result = new ClientDataQueryable(this.name, this.service);
-			return result.Select (args);
+			return result.select (args);
 		}
 
-		public ClientDataQueryable GroupBy(params string[] args) {
+		public ClientDataQueryable groupBy(params string[] args) {
 			var result = new ClientDataQueryable(this.name, this.service);
-			return result.GroupBy (args);
+			return result.groupBy (args);
 		}
 
-		public ClientDataQueryable Expand(params string[] args) {
+		public ClientDataQueryable expand(params string[] args) {
 			var result = new ClientDataQueryable(this.name, this.service);
-			return result.Expand (args);
+			return result.expand (args);
 		}
 
-		public ClientDataQueryable OrderBy(string arg) {
+		public ClientDataQueryable orderBy(string arg) {
 			var result = new ClientDataQueryable(this.name, this.service);
-			return result.OrderBy (arg);
+			return result.orderBy (arg);
 		}
 
-		public ClientDataQueryable OrderByDescending(string arg) {
+		public ClientDataQueryable skip(int num) {
 			var result = new ClientDataQueryable(this.name, this.service);
-			return result.OrderByDescending (arg);
+			return result.skip (num);
 		}
 
-		public object GetItems() {
+		public ClientDataQueryable take(int num) {
 			var result = new ClientDataQueryable(this.name, this.service);
-			return result.GetItems();
+			return result.take (num);
 		}
 
-		public object GetList() {
+		public ClientDataQueryable orderByDescending(string arg) {
 			var result = new ClientDataQueryable(this.name, this.service);
-			return result.GetList();
+			return result.orderByDescending (arg);
 		}
 
-		public object Save(object data) {
+		public object getItems() {
+			var result = new ClientDataQueryable(this.name, this.service);
+			return result.getItems();
+		}
+
+		public object getList() {
+			var result = new ClientDataQueryable(this.name, this.service);
+			return result.getList();
+		}
+
+		public object save(object data) {
 			var options = new ServiceExecuteOptions () {
 				Url = String.Format ("/{0}/index.json", this.GetName ()),
 				Method = HttpMethod.Post,
 				Data = data
 			};
-			return this.GetService ().Execute (options);
+			return this.getService ().execute (options);
 		}
 
-		public object Remove(object data) {
+		public object remove(object data) {
 			var options = new ServiceExecuteOptions () {
 				Url = String.Format ("/{0}/index.json", this.GetName ()),
 				Method = HttpMethod.Delete,
 				Data = data
 			};
-			return this.GetService ().Execute (options);
+			return this.getService ().execute (options);
 		}
 
 	}

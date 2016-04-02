@@ -16,18 +16,18 @@ namespace Most.Client
 			}
 
 			public QueryExpression(string left) {
-				this.Left = left;
+				this.left = left;
 			}
 
-			public string Left {
+			public string left {
 				get;
 				set;
 			}
-			public string Operator {
+			public string op {
 				get;
 				set;
 			}
-			public object Right {
+			public object right {
 				get;
 				set;
 			}
@@ -53,38 +53,38 @@ namespace Most.Client
 			this.options = new QueryOptions ();
 		}
 
-		public string GetModel() {
+		public string getModel() {
 			return this.model;
 		}
 
-		public IClientDataService GetService() {
+		public IClientDataService getService() {
 			return this.service;
 		}
 
-		public string GetUrl() {
+		public string getUrl() {
 			return this.url;
 		}
 
-		public ClientDataQueryable SetUrl(string value) {
+		public ClientDataQueryable setUrl(string value) {
 			Args.NotEmpty(value,"Model URL");
 			this.url = value;
 			return this;
 		}
 
-		public ClientDataQueryable Where(string name) {
+		public ClientDataQueryable where(string name) {
 			Args.NotNull(name,"Name");
 			this.expression = new QueryExpression (name);
 			return this;
 		}
 
-		public ClientDataQueryable And(string name) {
+		public ClientDataQueryable and(string name) {
 			Args.NotNull(name,"Name");
 			this.lop = "and";
 			this.expression = new QueryExpression (name);
 			return this;
 		}
 
-		public ClientDataQueryable AndAlso(string name) {
+		public ClientDataQueryable andAlso(string name) {
 			Args.NotNull(name,"Name");
 			if (this.options.filter != null) {
 				this.options.filter = "(" + this.options.filter + ")";
@@ -94,7 +94,7 @@ namespace Most.Client
 			return this;
 		}
 
-		public ClientDataQueryable OrElse(string name) {
+		public ClientDataQueryable orElse(string name) {
 			Args.NotNull(name,"Name");
 			if (this.options.filter != null) {
 				this.options.filter = "(" + this.options.filter + ")";
@@ -104,31 +104,31 @@ namespace Most.Client
 			return this;
 		}
 
-		public ClientDataQueryable Or(string name) {
+		public ClientDataQueryable or(string name) {
 			Args.NotNull(name,"Name");
 			this.lop = "or";
 			this.expression = new QueryExpression (name);
 			return this;
 		}
 
-		private ClientDataQueryable Append() {
+		private ClientDataQueryable append() {
 			Args.NotNull (this.expression, "Query Expression");
 			var expr = "";
-			if (this.expression.Left != null) {
-				if (this.expression.Operator == "in") {
+			if (this.expression.left != null) {
+				if (this.expression.op == "in") {
 					var exprs = new List<String> ();
-					foreach (var right in (Object[])this.expression.Right) {
-						exprs.Add (this.expression.Left + " eq " + ClientDataQueryable.Escape (right));
+					foreach (var right in (Object[])this.expression.right) {
+						exprs.Add (this.expression.left + " eq " + ClientDataQueryable.escape (right));
 					}
 					expr = '(' + String.Join (" or ", exprs) + ')';
-				} else if (this.expression.Operator == "nin") {
+				} else if (this.expression.op == "nin") {
 					var exprs = new List<String> ();
-					foreach (var right in (Object[])this.expression.Right) {
-						exprs.Add (this.expression.Left + " ne " + ClientDataQueryable.Escape (right));
+					foreach (var right in (Object[])this.expression.right) {
+						exprs.Add (this.expression.left + " ne " + ClientDataQueryable.escape (right));
 					}
 					expr = '(' + String.Join (" and ", exprs) + ')';
 				} else {
-					expr = this.expression.Left + " " + this.expression.Operator + " " + ClientDataQueryable.Escape (this.expression.Right);
+					expr = this.expression.left + " " + this.expression.op + " " + ClientDataQueryable.escape (this.expression.right);
 				}
 
 				if (this.options.filter == null) {
@@ -154,70 +154,120 @@ namespace Most.Client
 			return this;
 		}
 
-		public ClientDataQueryable Filter(string filter) {
+		public ClientDataQueryable filter(string filter) {
 			this.options.filter = filter;
 			return this;
 		}
 
-		public ClientDataQueryable Equal(object value) {
-			Args.NotNull(this.expression.Left,"Left operand");
-			this.expression.Operator = "eq";
-			this.expression.Right = value;
-			return this.Append();
+		public ClientDataQueryable equal(object value) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.op = "eq";
+			this.expression.right = value;
+			return this.append();
+		}
+
+		public ClientDataQueryable between(object value1, object value2) {
+			Args.NotNull(this.expression.left,"Left operand");
+			String s = (new ClientDataQueryable (this.getModel (), null))
+				.where (this.expression.left).greaterOrEqual (value1)
+				.and (this.expression.left).lowerOrEqual (value2).options.filter;
+			if (this.lop == null) {
+				this.lop = "and";
+			}
+			if (String.IsNullOrEmpty (this.options.filter)) {
+				this.options.filter = "(" + s + ")";
+			} else {
+				this.options.filter = "(" + this.options.filter + ") " + this.lop + " (" + s + ")";
+			}
+			this.expression = new QueryExpression ();
+			this.lop = null;
+			return this;
 		}
 
 
 
-		public ClientDataQueryable NotEqual(object value) {
-			Args.NotNull(this.expression.Left,"Left operand");
-			this.expression.Operator = "ne";
-			this.expression.Right = value;
-			return this.Append();
+		public ClientDataQueryable notEqual(object value) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.op = "ne";
+			this.expression.right = value;
+			return this.append();
 		}
 
-		public ClientDataQueryable GreaterThan(object value) {
-			Args.NotNull(this.expression.Left,"Left operand");
-			this.expression.Operator = "gt";
-			this.expression.Right = value;
-			return this.Append();
+		public ClientDataQueryable greaterThan(object value) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.op = "gt";
+			this.expression.right = value;
+			return this.append();
 		}
 
-		public ClientDataQueryable GreaterOrEqual(object value) {
-			Args.NotNull(this.expression.Left,"Left operand");
-			this.expression.Operator = "ge";
-			this.expression.Right = value;
-			return this.Append();
+		public ClientDataQueryable greaterOrEqual(object value) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.op = "ge";
+			this.expression.right = value;
+			return this.append();
 		}
 
-		public ClientDataQueryable LowerThan(object value) {
-			Args.NotNull(this.expression.Left,"Left operand");
-			this.expression.Operator = "lt";
-			this.expression.Right = value;
-			return this.Append();
+		public ClientDataQueryable lowerThan(object value) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.op = "lt";
+			this.expression.right = value;
+			return this.append();
 		}
 
-		public ClientDataQueryable LowerOrEqual(object value) {
-			Args.NotNull(this.expression.Left,"Left operand");
-			this.expression.Operator = "le";
-			this.expression.Right = value;
-			return this.Append();
+		public ClientDataQueryable lowerOrEqual(object value) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.op = "le";
+			this.expression.right = value;
+			return this.append();
 		}
 
-		public ClientDataQueryable In(object[] values) {
-			Args.NotNull(this.expression.Left,"Left operand");
-			this.expression.Operator = "in";
-			this.expression.Right = values;
-			return this.Append();
+		public ClientDataQueryable @in(params object[] values) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.op = "in";
+			this.expression.right = values;
+			return this.append();
 		}
 
-		public ClientDataQueryable NotIn(object[] values) {
-			Args.NotNull(this.expression.Left,"Left operand");
-			this.expression.Operator = "nin";
-			this.expression.Right = values;
-			return this.Append();
+		public ClientDataQueryable notIn(object[] values) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.op = "nin";
+			this.expression.right = values;
+			return this.append();
 		}
 
-		public ClientDataQueryable Select(params string[] args) {
+		public ClientDataQueryable startsWith(object value) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("startswith({0},{1})", this.expression.left,ClientDataQueryable.escape (value));
+			return this;
+		}
+
+		public ClientDataQueryable indexOf(object value) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("indexof({0},{1})", this.expression.left,ClientDataQueryable.escape (value));
+			return this;
+		}
+
+		public ClientDataQueryable endsWith(object value) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("endswith({0},{1})", this.expression.left,ClientDataQueryable.escape (value));
+			return this;
+		}
+
+		public ClientDataQueryable substr(int pos, int length) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("substring({0},{1},{2})", this.expression.left, pos, length);
+			return this;
+		}
+
+		public ClientDataQueryable contains(object value) {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.op = "ge";
+			this.expression.left = String.Format("indexof({0},{1})", this.expression.left,ClientDataQueryable.escape (value));
+			this.expression.right = 0;
+			return this.append();
+		}
+
+		public ClientDataQueryable select(params string[] args) {
 			if (args.Length > 0)
 				this.options.select = String.Join (",", args);
 			else
@@ -225,7 +275,7 @@ namespace Most.Client
 			return this;
 		}
 
-		public ClientDataQueryable Expand(params string[] args) {
+		public ClientDataQueryable expand(params string[] args) {
 			if (args.Length > 0)
 				this.options.expand = String.Join (",", args);
 			else
@@ -233,7 +283,7 @@ namespace Most.Client
 			return this;
 		}
 
-		public ClientDataQueryable GroupBy(params string[] args) {
+		public ClientDataQueryable groupBy(params string[] args) {
 			if (args.Length > 0)
 				this.options.group = String.Join (",", args);
 			else
@@ -241,99 +291,219 @@ namespace Most.Client
 			return this;
 		}
 
-		public ClientDataQueryable OrderBy(string arg) {
+		public ClientDataQueryable orderBy(string arg) {
 			Args.NotEmpty(arg,"Order operand");
 			this.options.order = arg;
 			return this;
 		}
 
-		public ClientDataQueryable ThenBy(string arg) {
+		public ClientDataQueryable thenBy(string arg) {
 			Args.NotEmpty(arg,"Order operand");
 			if (this.options.order != null) {
 				this.options.order += "," + arg;
 			} else {
-				return this.OrderBy (arg);
+				return this.orderBy (arg);
 			}
 			return this;
 		}
 
-		public ClientDataQueryable OrderByDescending(string arg) {
+		public ClientDataQueryable orderByDescending(string arg) {
 			Args.NotEmpty(arg,"Order operand");
 			this.options.order = arg + " desc";
 			return this;
 		}
 
-		public ClientDataQueryable ThenByDescending(string arg) {
+		public ClientDataQueryable thenByDescending(string arg) {
 			Args.NotEmpty(arg,"Order operand");
 			if (this.options.order != null) {
 				this.options.order += "," + arg + " desc";
 			} else {
-				return this.OrderByDescending (arg);
+				return this.orderByDescending (arg);
 			}
 			return this;
 		}
 
-		public ClientDataQueryable Take(int num) {
+		public ClientDataQueryable take(int num) {
 			Args.NotNegative(num,"Page size");
 			this.options.first = null;
 			this.options.top = num;
 			return this;
 		}
 
-		public ClientDataQueryable All() {
+		public object all() {
 			this.options.top = -1;
 			this.options.skip = null;
 			this.options.inlinecount = null;
 			this.options.first = null;
-			return this;
+			return this.getItems();
 		}
 
-		public ClientDataQueryable Skip(int num) {
+		public ClientDataQueryable skip(int num) {
 			Args.NotNegative(num,"Skip records");
 			this.options.first = null;
 			this.options.skip = num;
 			return this;
 		}
 
-		public ClientDataQueryable First() {
+		public object first() {
+			return this.getItem ();
+		}
+
+
+
+		public object getItem() {
 			this.options.top = null;
 			this.options.skip = null;
 			this.options.inlinecount = null;
 			this.options.first = true;
+			var options = new ServiceExecuteOptions () {
+				Url = this.getUrl (),
+				Query = this.options.ToNameValueCollection ()
+			};
+			return this.getService ().execute (options);
+		}
+
+		public object item() {
+			return this.getItem ();
+		}
+
+		public object getItems() {
+			this.options.inlinecount = null;
+			var options = new ServiceExecuteOptions () {
+				Url = this.getUrl (),
+				Query = this.options.ToNameValueCollection ()
+			};
+			return this.getService ().execute (options);
+		}
+
+		public object items() {
+			return this.getItems ();
+		}
+
+		public object getList() {
+			this.options.inlinecount = true;
+			var options = new ServiceExecuteOptions () {
+				Url = this.getUrl (),
+				Query = this.options.ToNameValueCollection ()
+			};
+			return this.getService ().execute (options);
+		}
+
+		public object list() {
+			return this.getList ();
+		}
+
+		public ClientDataQueryable toLowerCase() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("tolower({0})",this.expression.left);
 			return this;
 		}
 
-		public object GetItem() {
-			var options = new ServiceExecuteOptions () {
-				Url = this.GetUrl (),
-				Query = this.options.ToNameValueCollection ()
-			};
-			return this.First ().GetService ().Execute (options);
+		public ClientDataQueryable toLocaleLowerCase() {
+			return this.toLowerCase ();
 		}
 
-		public object GetItems() {
-			this.options.inlinecount = null;
-			var options = new ServiceExecuteOptions () {
-				Url = this.GetUrl (),
-				Query = this.options.ToNameValueCollection ()
-			};
-			return this.GetService ().Execute (options);
+		public ClientDataQueryable toLocaleUpperCase() {
+			return this.toUpperCase ();
 		}
 
-		public object GetList() {
-			this.options.inlinecount = true;
-			var options = new ServiceExecuteOptions () {
-				Url = this.GetUrl (),
-				Query = this.options.ToNameValueCollection ()
-			};
-			return this.GetService ().Execute (options);
+		public ClientDataQueryable toUpperCase() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("toupper({0})",this.expression.left);
+			return this;
 		}
 
-		internal static string Escape(object value) {
-			return ClientDataQueryable.Escape (value, false);
+		public ClientDataQueryable getDate() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("date({0})",this.expression.left);
+			return this;
 		}
 
-		internal static string Escape(object value, bool unquoted) {
+		public ClientDataQueryable getDay() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("day({0})",this.expression.left);
+			return this;
+		}
+
+		public ClientDataQueryable getMonth() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("month({0})",this.expression.left);
+			return this;
+		}
+
+		public ClientDataQueryable getYear() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("year({0})",this.expression.left);
+			return this;
+		}
+
+		public ClientDataQueryable getFullYear() {
+			return this.getYear ();
+		}
+
+		public ClientDataQueryable getHours() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("hour({0})",this.expression.left);
+			return this;
+		}
+
+		public ClientDataQueryable getMinutes() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("minute({0})",this.expression.left);
+			return this;
+		}
+
+		public ClientDataQueryable getSeconds() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("second({0})",this.expression.left);
+			return this;
+		}
+
+		public ClientDataQueryable floor() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("floor({0})",this.expression.left);
+			return this;
+		}
+
+		public ClientDataQueryable ceil() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("ceiling({0})",this.expression.left);
+			return this;
+		}
+
+		public ClientDataQueryable round() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("round({0})",this.expression.left);
+			return this;
+		}
+
+		public ClientDataQueryable length() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("length({0})",this.expression.left);
+			return this;
+		}
+
+		public ClientDataQueryable trim() {
+			Args.NotNull(this.expression.left,"Left operand");
+			this.expression.left = String.Format("trim({0})",this.expression.left);
+			return this;
+		}
+
+		public ClientDataQueryable concat(params string[] arg) {
+			Args.NotNull(this.expression.left,"Left operand");
+			var s =  "concat(" + this.expression.left;
+			foreach (var item in arg) {
+				s += "," + ClientDataQueryable.escape (item);
+			}
+			this.expression.left = s + ")";
+			return this;
+		}
+
+		internal static string escape(object value) {
+			return ClientDataQueryable.escape (value, false);
+		}
+
+		internal static string escape(object value, bool unquoted) {
 			return System.Text.RegularExpressions.Regex.Replace (JsonConvert.SerializeObject (value), "^\"|\"$", unquoted ? "" : "'");
 		}
 

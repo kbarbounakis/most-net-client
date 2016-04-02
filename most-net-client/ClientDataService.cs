@@ -38,7 +38,7 @@ namespace Most.Client {
 		/// Prepares an authenticated request by adding a cookie value which is going to be used as HTTP request header.
 		/// </summary>
 		/// <param name="authCookie">A string which represents the HTTP Cookie header to be used for user authentication</param>
-		public IClientDataService Authenticate(string authCookie) {
+		public IClientDataService authenticate(string authCookie) {
 			this.cookie = authCookie;
 			return this;
 		}
@@ -48,7 +48,7 @@ namespace Most.Client {
 		/// </summary>
 		/// <param name="username">A string which represents the user name.</param>
 		/// <param name="password">A string which represents the user password.</param>
-		public IClientDataService Authenticate(string username, string password) {
+		public IClientDataService authenticate(string username, string password) {
 			try {
 				//create request uri
 				Uri requestUri;
@@ -91,7 +91,7 @@ namespace Most.Client {
 		/// <param name="relativeUri">A string which represents a relative URI.</param>
 		/// <param name="query">A collection of query parameters.</param>
 		/// <param name="data">An object which represents the data to be sent.</param>
-		public Object Execute(ServiceExecuteOptions options) {
+		public Object execute(ServiceExecuteOptions options) {
 			//create request uri
 			Uri requestUri;
 			Object result;

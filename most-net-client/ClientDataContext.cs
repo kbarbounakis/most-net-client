@@ -10,7 +10,7 @@ namespace Most.Client
 			this.service = new ClientDataService (uri);
 		}
 
-		public static ClientDataContext Create(string uri) 
+		public static ClientDataContext create(string uri) 
 		{
 			return new ClientDataContext(uri);
 		}
@@ -24,17 +24,17 @@ namespace Most.Client
 			return this;
 		}
 
-		public ClientDataContext Authenticate(string cookie) {
-			this.service.Authenticate(cookie);
+		public ClientDataContext authenticate(string cookie) {
+			this.service.authenticate(cookie);
 			return this;
 		}
 
-		public ClientDataContext Authenticate(string username, string password) {
-			this.service.Authenticate(username, password);
+		public ClientDataContext authenticate(string username, string password) {
+			this.service.authenticate(username, password);
 			return this;
 		}
 
-		public ClientDataModel Model(string name) {
+		public ClientDataModel model(string name) {
 			return new ClientDataModel(name, this.service);
 		}
 
