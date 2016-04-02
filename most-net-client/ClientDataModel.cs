@@ -15,7 +15,7 @@ namespace Most.Client
 			this.service = service;
 		}
 
-		public string GetName() {
+		public string getName() {
 			return this.name;
 		}
 
@@ -25,7 +25,7 @@ namespace Most.Client
 
 		public object schema() {
 			var options = new ServiceExecuteOptions();
-			options.Url = String.Format ("/{0}/schema.json", this.GetName ());
+			options.Url = String.Format ("/{0}/schema.json", this.getName ());
 			return this.getService().execute(options);
 		}
 
@@ -81,7 +81,7 @@ namespace Most.Client
 
 		public object save(object data) {
 			var options = new ServiceExecuteOptions () {
-				Url = String.Format ("/{0}/index.json", this.GetName ()),
+				Url = String.Format ("/{0}/index.json", this.getName ()),
 				Method = HttpMethod.Post,
 				Data = data
 			};
@@ -90,7 +90,7 @@ namespace Most.Client
 
 		public object remove(object data) {
 			var options = new ServiceExecuteOptions () {
-				Url = String.Format ("/{0}/index.json", this.GetName ()),
+				Url = String.Format ("/{0}/index.json", this.getName ()),
 				Method = HttpMethod.Delete,
 				Data = data
 			};
