@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicTest.cs" />
+    <Compile Include="SerializationTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -52,5 +53,11 @@
       <Project>{4A85911B-F454-4543-B61C-8413F926DC1D}</Project>
       <Name>most-net-client</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TestResponse.json" />
+    <EmbeddedResource Include="TestResponseWithArray.json" />
+    <EmbeddedResource Include="TestResponseArray.json" />
+    <EmbeddedResource Include="TestResponseSet.json" />
   </ItemGroup>
 </Project>

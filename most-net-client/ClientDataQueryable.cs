@@ -330,12 +330,16 @@ namespace Most.Client
 			return this;
 		}
 
-		public object all() {
+		public Object all() {
+			return this.all<DataObjectArray> ();
+		}
+
+		public T all<T>() {
 			this.options.top = -1;
 			this.options.skip = null;
 			this.options.inlinecount = null;
 			this.options.first = null;
-			return this.getItems();
+			return this.getItems<T>();
 		}
 
 		public ClientDataQueryable skip(int num) {
@@ -349,9 +353,16 @@ namespace Most.Client
 			return this.getItem ();
 		}
 
+		public T first<T>() {
+			return this.getItem<T>();
+		}
+
+		public Object getItem() {
+			return this.getItem<DataObject> ();
+		}
 
 
-		public object getItem() {
+		public T getItem<T>() {
 			this.options.top = null;
 			this.options.skip = null;
 			this.options.inlinecount = null;
@@ -360,20 +371,24 @@ namespace Most.Client
 				Url = this.getUrl (),
 				Query = this.options.ToNameValueCollection ()
 			};
-			return this.getService ().execute (options);
+			return this.getService ().execute<T> (options);
 		}
 
 		public object item() {
 			return this.getItem ();
 		}
 
-		public object getItems() {
+		public Object getItems() {
+			return this.getItems<DataObjectArray>();
+		}
+
+		public T getItems<T>() {
 			this.options.inlinecount = null;
 			var options = new ServiceExecuteOptions () {
 				Url = this.getUrl (),
 				Query = this.options.ToNameValueCollection ()
 			};
-			return this.getService ().execute (options);
+			return this.getService ().execute<T>(options);
 		}
 
 		public object items() {
@@ -386,7 +401,7 @@ namespace Most.Client
 				Url = this.getUrl (),
 				Query = this.options.ToNameValueCollection ()
 			};
-			return this.getService ().execute (options);
+			return this.getService ().execute<DataObjectArray>(options);
 		}
 
 		public object list() {

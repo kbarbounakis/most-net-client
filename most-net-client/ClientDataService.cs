@@ -83,6 +83,10 @@ namespace Most.Client {
 			}
 		}
 
+		public Object execute(ServiceExecuteOptions options) {
+			return this.execute<DataObject> (options);
+		}
+
 		/// <summary>
 		/// Executes an HTTP request based on the given relative URI.
 		/// </summary>
@@ -91,7 +95,7 @@ namespace Most.Client {
 		/// <param name="relativeUri">A string which represents a relative URI.</param>
 		/// <param name="query">A collection of query parameters.</param>
 		/// <param name="data">An object which represents the data to be sent.</param>
-		public Object execute(ServiceExecuteOptions options) {
+		public T execute<T>(ServiceExecuteOptions options) {
 			//create request uri
 			Uri requestUri;
 			Object result;
@@ -137,7 +141,9 @@ namespace Most.Client {
 				{
 					using (var textReader = new JsonTextReader(reader))
 					{
-						result = sr.Deserialize (textReader);
+						sr.Converters.Add (new DataObjectConverter ());
+						sr.Converters.Add (new DataObjectArrayConverter ());
+						result = sr.Deserialize<T> (textReader);
 					}
 				}
 				//close response
@@ -151,7 +157,7 @@ namespace Most.Client {
 			else {
 				throw new HttpListenerException((int)response.StatusCode, response.StatusDescription);
 			}
-			return result;
+			return (T)result;
 		}
 
 

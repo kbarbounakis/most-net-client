@@ -1,5 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace Most.Client
 {
@@ -46,6 +49,21 @@ namespace Most.Client
 
 		public DateTime getDateTime(string key) {
 			return this.getValue<DateTime> (key);
+		}
+
+		public override string ToString ()
+		{
+			StringBuilder sb = new StringBuilder ();
+			Newtonsoft.Json.JsonSerializer sr = new JsonSerializer ();
+			sr.Formatting = Formatting.Indented;
+			using (var writer = new StringWriter(sb))
+			{
+				using (var textWriter = new JsonTextWriter(writer))
+				{
+					sr.Serialize (textWriter, this);
+				}
+			}
+			return sb.ToString();
 		}
 
 	}

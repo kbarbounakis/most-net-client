@@ -54,6 +54,8 @@
     <Compile Include="ServiceExecuteOptions.cs" />
     <Compile Include="ClientDataModel.cs" />
     <Compile Include="IClientDataService.cs" />
+    <Compile Include="DataObjectConverter.cs" />
+    <Compile Include="DataObjectArrayConverter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
