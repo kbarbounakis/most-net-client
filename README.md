@@ -4,6 +4,12 @@ A .NET client library for connecting to a remote [MOST Web Framework](https://gi
 
 ![MOST Web Framework Logo](https://www.themost.io/assets/images/most_logo_sw_240.png)
 
+### Usage
+
+If you don't have a MOST Web Framework application clone [MOST Web Framework OMS Demo](https://github.com/kbarbounakis/most-web-oms-demo) application and follow the installation instructions.
+
+Create a new .NET Framework project and use MOST Web Framework .NET Client to communicate with your application.
+
 ### Authentication
 
 Use basic authentication:
