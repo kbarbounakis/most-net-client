@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Configuration;
+using System.Dynamic;
 
 namespace Most.Client.Test
 {
@@ -22,12 +23,17 @@ namespace Most.Client.Test
 		}
 
 		[Test ()]
-		public void TestCase ()
+		public void TestGetSchema ()
 		{
 
 			var result = this.getContext()
-				.model("Product").schema();
-			Console.WriteLine (result.ToString ());
+				.model("Product").getSchema() as DataObject;
+			//enumerate attributes
+			List<Object> attributes = result ["attributes"] as List<Object>;
+			foreach (DataObject attribute in attributes) {
+				Console.WriteLine (attribute["name"]);
+			}
+
 			
 		}
 
@@ -140,6 +146,7 @@ namespace Most.Client.Test
 				.getItems ();
 			Console.WriteLine (result.ToString ());
 		}
+
 
 		[Test ()]
 		public void TestContains()
@@ -305,7 +312,7 @@ namespace Most.Client.Test
 		public void TestUpperCase ()
 		{
 			var result = this.getContext ().model ("Product")
-					.where("category").toLowerCase()
+					.where("category").toUpperCase()
 				.equal("LAPTOPS")
 				.getItems ();
 			Console.WriteLine (result.ToString ());
@@ -416,6 +423,49 @@ namespace Most.Client.Test
 				.skip (5)
 				.take (5)
 				.getList ();
+			Console.WriteLine (result.ToString ());
+		}
+
+		[Test ()]
+		public void TestGetOrderAndUpdate ()
+		{
+			var order = this.getContext ().model ("Order")
+					.where ("id").equal (21)
+				.getItem<DataObject>();
+			order ["orderStatus"] = new {
+				alternateName = "OrderDelivered"
+
+			};
+			this.getContext ().model ("Order").save (order);
+		}
+
+		[Test ()]
+		public void TestRemoveOrder ()
+		{
+			var context = this.getContext ();
+			var order = new {
+				id = 22
+			};
+			context.model ("Order").remove (order);
+		}
+
+		[Test ()]
+		public void TestFirst ()
+		{
+			var result = this.getContext().model("User")
+					.where("name").equal("alexis.rees@example.com")
+				.first<DataObject>();
+			Console.WriteLine (result.ToString ());
+		}
+
+		[Test ()]
+		public void TestAndAlso ()
+		{
+			var result = this.getContext ().model ("Product")
+				.where ("category").equal ("Laptops")
+				.or ("category").equal ("Desktops")
+				.andAlso ("price").greaterOrEqual (177)
+				.getItems ();
 			Console.WriteLine (result.ToString ());
 		}
 

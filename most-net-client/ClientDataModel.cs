@@ -24,9 +24,13 @@ namespace Most.Client
 		}
 
 		public object schema() {
+			return this.getSchema();
+		}
+
+		public object getSchema() {
 			var options = new ServiceExecuteOptions();
 			options.Url = String.Format ("/{0}/schema.json", this.getName ());
-			return this.getService().execute(options);
+			return this.getService().execute<DataObject>(options);
 		}
 
 		public ClientDataQueryable where(string name) {
@@ -72,6 +76,11 @@ namespace Most.Client
 		public object getItems() {
 			var result = new ClientDataQueryable(this.name, this.service);
 			return result.getItems();
+		}
+
+		public T getItems<T>() {
+			var result = new ClientDataQueryable(this.name, this.service);
+			return result.getItems<T>();
 		}
 
 		public object getList() {

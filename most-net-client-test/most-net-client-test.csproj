@@ -38,6 +38,7 @@
       <Package>nunit</Package>
     </Reference>
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Dynamic" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicTest.cs" />

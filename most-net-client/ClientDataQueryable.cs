@@ -141,9 +141,9 @@ namespace Most.Client
 						this.lastop = this.lop;
 					}
 					if (this.lop == this.lastop) {
-						this.options.filter = this.options.filter + " " + this.lop + " " + expr;
+						this.options.filter = this.options.filter + " " + this.lop + " (" + expr + ")";
 					} else {
-						this.options.filter = "(" + this.options.filter + ") " + this.lop + " " + expr;
+						this.options.filter = "(" + this.options.filter + ") " + this.lop + " (" + expr + ")";
 					}
 					this.lastop = this.lop;
 				}
